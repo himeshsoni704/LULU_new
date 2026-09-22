@@ -29,6 +29,7 @@ const arabicTranslations = {
   "What We Do": "ماذا نقدم", "Packaging that works for your business.": "حلول تغليف تناسب أعمالك.", "Capabilities": "قدراتنا", "Four families of packaging supply": "أربع فئات من مستلزمات التغليف", "Browse range": "تصفح المجموعة", "How quoting works": "كيف يعمل التسعير", "From enquiry to supply": "من الاستفسار إلى التوريد",
   "Tell us what you pack": "أخبرنا بما تقوم بتغليفه", "We prepare a formal quotation": "نجهز عرض سعر رسمي", "You confirm, we supply": "تؤكد الطلب ونحن نوفره",
   Contact: "تواصل معنا", "Talk to the team.": "تحدث مع فريقنا.", "Contact": "تواصل", "Address": "العنوان", "Phone & Fax": "الهاتف والفاكس", "WhatsApp": "واتساب", "Email": "البريد الإلكتروني", "Send a message": "أرسل رسالة", "We'll get back to you": "سنعاود التواصل معك", "Message received": "تم استلام الرسالة", "Thank you. Our team will get back to you shortly.": "شكراً لك. سيتواصل معك فريقنا قريباً.", "Continue browsing": "متابعة التصفح", "Your name": "اسمك", "How can we help?": "كيف يمكننا مساعدتك؟", "Sending…": "جارٍ الإرسال…",
+  "Call, message on WhatsApp, or leave a note — we respond with straight answers.": "اتصل بنا أو راسلنا عبر واتساب أو اترك رسالة — سنجيبك بوضوح.", "Phone & Fax": "الهاتف والفاكس", "Chat with us on WhatsApp": "تحدث معنا عبر واتساب", "Tel:": "هاتف:", "Fax:": "فاكس:", "Send a message": "إرسال رسالة", "We’ll get back to you": "سنعاود التواصل معك", "Message received": "تم استلام رسالتك", "Thank you": "شكراً لك", "Name": "الاسم", "Phone / WhatsApp": "الهاتف / واتساب", "Message": "الرسالة", "How can we help?": "كيف يمكننا مساعدتك؟", "Submit": "إرسال", "Sending...": "جارٍ الإرسال...", "Send": "إرسال", "Get in touch": "تواصل معنا", "Learn more": "اعرف المزيد", "View products": "عرض المنتجات", "Read more": "اقرأ المزيد", "Back": "رجوع", "Next": "التالي", "Previous": "السابق", "Close": "إغلاق", "Menu": "القائمة", "Open menu": "فتح القائمة", "Close menu": "إغلاق القائمة", "Loading": "جارٍ التحميل", "Required": "مطلوب", "Please wait": "يرجى الانتظار", "Thank you for your message.": "شكراً لرسالتك.", "Industrial Area #5, Sharjah": "المنطقة الصناعية رقم 5، الشارقة", "United Arab Emirates": "الإمارات العربية المتحدة", "Sharjah": "الشارقة", "UAE": "الإمارات العربية المتحدة", "All rights reserved.": "جميع الحقوق محفوظة.", "Follow us": "تابعنا", "Quick links": "روابط سريعة", "Quality": "الجودة", "Experience": "الخبرة", "Service": "الخدمة", "Reliable": "موثوق", "Supplied by quotation": "متوفر حسب عرض السعر", "Request quote": "اطلب عرض سعر", "View catalogue": "عرض الكتالوج", "Our story": "قصتنا", "Our products": "منتجاتنا", "Our services": "خدماتنا", "Industries": "القطاعات", "Company": "الشركة", "Details": "التفاصيل", "Category": "الفئة", "Quantity": "الكمية", "Price": "السعر", "Available": "متوفر", "Inquire": "استفسر", "Submit Request": "إرسال الطلب", "Get a quote": "احصل على عرض سعر", "Contact us": "تواصل معنا", "Thank you": "شكراً لك", "Something went wrong. Please try again.": "حدث خطأ ما. يرجى المحاولة مرة أخرى." ,
 };
 
 const translations = { en: {}, ar: arabicTranslations };
@@ -47,8 +48,14 @@ function translatePage() {
     const source = originalText.get(node);
     const normalized = source.trim().replace(/\s+/g, " ");
     if (!normalized) return;
-    const translated = isArabic ? arabicTranslations[normalized] : undefined;
-    const nextValue = isArabic && translated ? source.replace(normalized, translated) : source;
+    let nextValue = source;
+    if (isArabic) {
+      const phrases = Object.entries(arabicTranslations).sort(([a], [b]) => b.length - a.length);
+      phrases.forEach(([english, arabic]) => {
+        if (!english.trim() || !nextValue.includes(english)) return;
+        nextValue = nextValue.split(english).join(arabic);
+      });
+    }
     if (node.nodeValue !== nextValue) node.nodeValue = nextValue;
   });
 
