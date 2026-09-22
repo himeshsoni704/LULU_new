@@ -67,7 +67,7 @@ export async function streamGeminiChat({ messages, onDelta }) {
       if (!jsonStr) continue;
       try {
         const parsed = JSON.parse(jsonStr);
-        const textChunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+        const textChunk = parsed.delta ?? parsed.candidates?.[0]?.content?.parts?.[0]?.text;
         if (textChunk && onDelta) {
           onDelta(textChunk);
         }
