@@ -32,42 +32,11 @@ ${catalogLines}
 TONE: Short, warm, professional B2B. Guide users to ask about product type, size, and quantity so they can get a formal quote.`;
 };
 
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash";
-
-export async function streamGeminiChat({ messages, onDelta, apiKey }) {
-  const key = apiKey || process.env.REACT_APP_GEMINI_API_KEY;
-  if (!key) {
-    throw new Error("Gemini API key is not configured.");
-  }
-
-  const contents = [];
-  for (const m of messages) {
-    if (m.role === "user") {
-      contents.push({ role: "user", parts: [{ text: m.content }] });
-    } else if (m.role === "assistant" && m.content) {
-      contents.push({ role: "model", parts: [{ text: m.content }] });
-    }
-  }
-
-  if (contents.length === 0 || contents[contents.length - 1].role !== "user") {
-    return;
-  }
-
-  const systemInstruction = {
-    parts: [{ text: buildRockySystemPrompt() }],
-  };
-
-  const response = await fetch(`${GEMINI_API_URL}:streamGenerateContent?alt=sse&key=${key}`, {
+export async function streamGeminiChat({ messages, onDelta }) {
+  const response = await fetch("/api/rocky/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents,
-      systemInstruction,
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 200,
-      },
-    }),
+    body: JSON.stringify({ messages }),
   });
 
   if (!response.ok) {
