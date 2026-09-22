@@ -15,6 +15,7 @@ import Industries from "./pages/Industries";
 import Contact from "./pages/Contact";
 import QuotePage from "./pages/QuotePage";
 import Admin from "./pages/Admin";
+import { LanguageProvider } from "./context/LanguageContext";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -76,6 +77,7 @@ class ErrorBoundary extends React.Component {
 function App() {
   return (
     <ErrorBoundary>
+      <LanguageProvider>
       <BrowserRouter>
         <LenisSetup />
         <ScrollToTop />
@@ -100,6 +102,7 @@ function App() {
         <Rocky />
         <Toaster position="top-center" richColors />
       </BrowserRouter>
+      </LanguageProvider>
     </ErrorBoundary>
   );
 }
