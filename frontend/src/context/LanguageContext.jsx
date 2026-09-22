@@ -41,6 +41,19 @@ const arabicTranslations = {
   "Tell us what you pack": "أخبرنا بما تقوم بتغليفه", "We prepare a formal quotation": "نجهز عرض سعر رسمي", "You confirm, we supply": "تؤكد الطلب ونحن نوفره",
   "Industrial packaging, supplied with confidence.": "مواد تغليف صناعية يتم توريدها بثقة.", "Built for the way you work.": "مصممة لتناسب طريقة عملك.", "Our industries": "قطاعاتنا", "Food & beverage": "الأغذية والمشروبات", "Manufacturing": "التصنيع", "Construction": "الإنشاءات", "Retail & e-commerce": "التجزئة والتجارة الإلكترونية",
   "Home": "الرئيسية", "Products": "المنتجات", "What We Do": "ماذا نقدم", "Industries": "القطاعات", "About": "من نحن", "Contact": "تواصل معنا", "Request a Quote": "اطلب عرض سعر",
+  "Packaging": "التغليف", "Solutions": "الحلول", "Built for": "مصممة من أجل", "Business.": "الأعمال.",
+  "Explore Products": "استكشف المنتجات", "Request a Quote": "اطلب عرض سعر", "Scroll": "مرر",
+  "Sealed the Al Lulu way": "مغلق بطريقة اللولو", "Our location": "موقعنا", "All industries": "جميع القطاعات",
+  "Browse the full catalogue": "تصفح الكتالوج الكامل", "Our products": "منتجاتنا", "Applications": "التطبيقات",
+  "Among our clients:": "من عملائنا:", "Where our packaging goes": "أين تصل منتجات التغليف لدينا",
+  "Al Lulu Packaging": "اللولو للتغليف", "Al Lulu Packaging — Sharjah, UAE": "اللولو للتغليف — الشارقة، الإمارات",
+  "Corrugated Boxes": "صناديق كرتونية مموجة", "BOPP Tapes": "أشرطة BOPP", "Stretch Films": "أفلام التمدد", "Bubble Rolls": "لفائف الفقاعات", "Edge Protection": "حماية الحواف", "Paper Cores": "لب الورق", "PP Strapping": "أشرطة ربط PP", "Pizza Boxes": "علب البيتزا", "Masking Tapes": "أشرطة لاصقة", "E-Flute Sheets": "ألواح E-Flute", "File Storage Boxes": "صناديق حفظ الملفات", "Sharjah Industrial Area #5": "المنطقة الصناعية رقم 5، الشارقة",
+  "Corrugated Rolls": "لفائف الكرتون المموج", "Corrugated Sheets": "ألواح الكرتون المموج", "Paper Core": "لب الورق", "Boxes for Every Business": "صناديق لكل الأعمال", "Tapes & Strapping": "الأشرطة ومواد الربط", "Protection & Films": "الحماية والأفلام",
+  "Reliable packaging solutions for businesses across the UAE, backed by quality, experience and dependable service.": "حلول تغليف موثوقة للشركات في جميع أنحاء الإمارات، مدعومة بالجودة والخبرة والخدمة الموثوقة.",
+  "Packaging that works for your business": "تغليف يناسب أعمالك", "Sealing a corrugated box with packaging tape": "إغلاق صندوق كرتوني بشريط تغليف",
+  "Trusted by businesses across industries": "تحظى بثقة الشركات في مختلف القطاعات", "Selected names from our client register, as supplied by Al Lulu Packaging.": "أسماء مختارة من سجل عملائنا كما قدمتها شركة اللولو للتغليف.",
+  "Client names shown as supplied by Al Lulu Packaging. No partnership, certification or endorsement is implied.": "أسماء العملاء معروضة كما قدمتها شركة اللولو للتغليف. لا يشير ذلك إلى شراكة أو اعتماد أو تأييد.",
+  "Find us": "موقعنا", "Open in Google Maps": "فتح في خرائط جوجل", "Warehouse stock — Sharjah": "مخزون المستودع — الشارقة", "Kraft corrugated, sealed & ready": "كرتون كرافت مموج، جاهز ومغلق",
 };
 
 const translations = { en: {}, ar: arabicTranslations };
