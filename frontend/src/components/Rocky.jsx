@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Package, Send, X, Sparkles, MessageCircle } from "lucide-react";
 import { COMPANY, WA_GENERAL, waLink } from "../data/site";
-import { streamGeminiChat } from "../lib/gemini";
+import { streamGeminiChat, summarizeGeminiChat } from "../lib/gemini";
 
 const GREETING = "Hi, I'm Rocky 👋 I can help you find the right packaging product, learn about Al Lulu Packaging, or guide you to get a quote.";
 const FALLBACK = "I'm not sure about that. Let me connect you with the Al Lulu team — tap below to send a WhatsApp message and they'll get back to you quickly.";
@@ -25,6 +25,7 @@ export default function Rocky() {
   const [streaming, setStreaming] = useState(false);
   const [lastUserMsg, setLastUserMsg] = useState("");
   const [showWaHint, setShowWaHint] = useState(false);
+  const [sendingToWhatsApp, setSendingToWhatsApp] = useState(false);
   const sessionRef = useRef(`s-${Math.random().toString(36).slice(2, 12)}`);
   const listRef = useRef(null);
   const navigate = useNavigate();
@@ -39,11 +40,25 @@ export default function Rocky() {
     if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
   }, [messages, streaming, showWaHint]);
 
-  const buildWaLink = (userMsg) => {
-    const summary = userMsg
-      ? `Hi, I was chatting with Rocky on your website. My query: "${userMsg}". Can you help?`
-      : `Hi, I'd like to know more about Al Lulu Packaging's products and services.`;
-    return waLink(summary);
+  const openWhatsApp = async () => {
+    if (sendingToWhatsApp) return;
+    const popup = window.open("about:blank", "_blank");
+    setSendingToWhatsApp(true);
+    try {
+      const summary = await summarizeGeminiChat(messages);
+      const destination = waLink(summary);
+      if (popup) popup.location.href = destination;
+      else window.location.href = destination;
+    } catch (error) {
+      console.warn("Gemini handoff summary failed:", error);
+      const fallback = lastUserMsg
+        ? `Hi, I was chatting with Rocky on your website. My query: "${lastUserMsg}". Can you help?`
+        : `Hi, I'd like to know more about Al Lulu Packaging's products and services.`;
+      if (popup) popup.location.href = waLink(fallback);
+      else window.location.href = waLink(fallback);
+    } finally {
+      setSendingToWhatsApp(false);
+    }
   };
 
   const send = async (text) => {
@@ -201,16 +216,16 @@ export default function Rocky() {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex justify-start"
                 >
-                  <a
-                    href={buildWaLink(lastUserMsg)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-lg bg-[#1FA855] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-transform hover:scale-[1.02]"
+                  <button
+                    type="button"
+                    onClick={openWhatsApp}
+                    disabled={sendingToWhatsApp}
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#1FA855] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-transform hover:scale-[1.02] disabled:cursor-wait disabled:opacity-70"
                     data-testid="rocky-whatsapp-cta"
                   >
                     <MessageCircle className="h-4 w-4" />
-                    Send query to WhatsApp
-                  </a>
+                    {sendingToWhatsApp ? "Preparing your message…" : "Send query to WhatsApp"}
+                  </button>
                 </motion.div>
               )}
             </div>
