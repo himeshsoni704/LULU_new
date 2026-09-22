@@ -2,14 +2,6 @@ import { useRef, useState, useEffect } from "react";
 import FoldingBox from "./FoldingBox";
 import React from "react";
 
-/* ─── Promises list ─── */
-const PROMISES = [
-  "On-time dispatch from Sharjah",
-  "Formal quotation within 24 hours",
-  "Full-range supply under one roof",
-  "Quality checked before it leaves",
-];
-
 /* ─── 01 02 03 supply steps ─── */
 const STEPS = [
   {
@@ -135,21 +127,11 @@ export default function WayWeSupplySection() {
               </BoxErrorBoundary>
             </div>
 
-            {/* Promises */}
-            <div className="w-full max-w-xs">
-              <ul className="flex flex-col gap-3 border border-bone/12 bg-bone/5 p-5">
-                {PROMISES.map((promise, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span
-                      className="mt-0.5 h-4 w-4 shrink-0 rounded-full border border-kraft flex items-center justify-center"
-                      style={{ background: "rgba(160,90,44,0.12)" }}
-                    >
-                      <span className="block h-1.5 w-1.5 rounded-full bg-kraft" />
-                    </span>
-                    <span className="text-sm leading-snug text-bone/75">{promise}</span>
-                  </li>
-                ))}
-              </ul>
+            {/* Promises Guarantee */}
+            <div className="w-full max-w-md border-t border-b border-bone/12 py-4 text-center">
+              <p className="font-mono text-xs uppercase tracking-[0.16em] text-bone/70">
+                Sharjah Dispatch &bull; 24h Quotation &bull; Full-Range &bull; Quality Checked
+              </p>
             </div>
           </div>
 
