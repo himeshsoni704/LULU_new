@@ -19,6 +19,16 @@ const arabicTranslations = {
   "Corrugated & Paper": "الكرتون والورق", Boxes: "الصناديق", "Tapes & Strapping": "الأشرطة والربط", "Protective & Films": "الحماية والأفلام",
   All: "الكل", "Phone": "الهاتف", Email: "البريد الإلكتروني", Address: "العنوان", "Send Message": "إرسال الرسالة", "Submit Request": "إرسال الطلب",
   "Switch to English": "التبديل إلى الإنجليزية", "Language: Arabic": "اللغة: العربية", "Something went wrong": "حدث خطأ ما", Reload: "إعادة تحميل",
+  "Product Catalogue": "كتالوج المنتجات", "Everything for the dispatch floor.": "كل ما تحتاجه لمنطقة الشحن.",
+  "The Al Lulu catalogue — corrugated products, boxes, tapes, protective films and accessories, supplied by quotation.": "كتالوج اللولو — منتجات الكرتون المموج والصناديق والأشرطة والأفلام الواقية والملحقات، متوفرة حسب عرض السعر.",
+  "Product categories": "فئات المنتجات", "Search products…": "ابحث عن المنتجات…", "Search products": "البحث عن المنتجات", "Clear search": "مسح البحث",
+  "No products match your search": "لا توجد منتجات تطابق بحثك", "Try a different term, or clear the filters to see the full catalogue.": "جرب كلمة أخرى أو امسح الفلاتر لعرض الكتالوج الكامل.", "Reset filters": "إعادة تعيين الفلاتر",
+  "About Al Lulu Packaging": "عن اللولو للتغليف", "Packaging experience built around business needs.": "خبرة في التغليف مصممة حول احتياجات الأعمال.",
+  "The company": "الشركة", "Complete packaging, from Sharjah industry.": "تغليف متكامل من المنطقة الصناعية في الشارقة.", "Our facility": "منشأتنا", "Our operations": "عملياتنا", "Goods in, goods out": "استلام البضائع وتسليمها",
+  "Dependable supply": "توريد موثوق", "The complete catalogue": "الكتالوج المتكامل", "Business-to-business, always": "دائماً من شركة إلى شركة",
+  "What We Do": "ماذا نقدم", "Packaging that works for your business.": "حلول تغليف تناسب أعمالك.", "Capabilities": "قدراتنا", "Four families of packaging supply": "أربع فئات من مستلزمات التغليف", "Browse range": "تصفح المجموعة", "How quoting works": "كيف يعمل التسعير", "From enquiry to supply": "من الاستفسار إلى التوريد",
+  "Tell us what you pack": "أخبرنا بما تقوم بتغليفه", "We prepare a formal quotation": "نجهز عرض سعر رسمي", "You confirm, we supply": "تؤكد الطلب ونحن نوفره",
+  Contact: "تواصل معنا", "Talk to the team.": "تحدث مع فريقنا.", "Contact": "تواصل", "Address": "العنوان", "Phone & Fax": "الهاتف والفاكس", "WhatsApp": "واتساب", "Email": "البريد الإلكتروني", "Send a message": "أرسل رسالة", "We'll get back to you": "سنعاود التواصل معك", "Message received": "تم استلام الرسالة", "Thank you. Our team will get back to you shortly.": "شكراً لك. سيتواصل معك فريقنا قريباً.", "Continue browsing": "متابعة التصفح", "Your name": "اسمك", "How can we help?": "كيف يمكننا مساعدتك؟", "Sending…": "جارٍ الإرسال…",
 };
 
 const translations = { en: {}, ar: arabicTranslations };
@@ -30,8 +40,17 @@ function translatePage() {
   while (walker.nextNode()) nodes.push(walker.currentNode);
   nodes.forEach((node) => {
     const value = node.nodeValue.trim();
-    if (!value || !arabicTranslations[value] || node.parentElement?.closest("script, style, input, textarea")) return;
-    node.nodeValue = node.nodeValue.replace(value, arabicTranslations[value]);
+    const normalized = value.replace(/\s+/g, " ");
+    if (!value || !arabicTranslations[normalized] || node.parentElement?.closest("script, style, input, textarea")) return;
+    node.nodeValue = node.nodeValue.replace(value, arabicTranslations[normalized]);
+  });
+
+  document.querySelectorAll("[aria-label], [title], input[placeholder], textarea[placeholder]").forEach((element) => {
+    ["aria-label", "title", "placeholder"].forEach((attribute) => {
+      const value = element.getAttribute(attribute);
+      const normalized = value?.replace(/\s+/g, " ");
+      if (normalized && arabicTranslations[normalized]) element.setAttribute(attribute, arabicTranslations[normalized]);
+    });
   });
 }
 
@@ -54,7 +73,11 @@ export function LanguageProvider({ children }) {
   const value = useMemo(() => ({
     language,
     isArabic,
-    toggleLanguage: () => setLanguage((current) => current === "en" ? "ar" : "en"),
+    toggleLanguage: () => {
+      const nextLanguage = language === "en" ? "ar" : "en";
+      window.localStorage.setItem("al-lulu-language", nextLanguage);
+      window.location.reload();
+    },
     t: (key) => translations[language][key] || key,
   }), [language, isArabic]);
 
