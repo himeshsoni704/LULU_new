@@ -1,6 +1,6 @@
 {
   "framework": "create-react-app",
-  "installCommand": "npm install --prefix frontend",
+  "installCommand": "npm install --legacy-peer-deps --prefix frontend",
   "buildCommand": "npm run build --prefix frontend",
   "outputDirectory": "frontend/build"
 }
