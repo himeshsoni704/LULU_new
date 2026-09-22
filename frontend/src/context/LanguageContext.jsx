@@ -32,24 +32,37 @@ const arabicTranslations = {
 };
 
 const translations = { en: {}, ar: arabicTranslations };
+const originalText = new WeakMap();
+const originalAttributes = new WeakMap();
 
 function translatePage() {
-  if (!document.documentElement.matches('[dir="rtl"]')) return;
+  const isArabic = document.documentElement.matches('[dir="rtl"]');
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
+
   nodes.forEach((node) => {
-    const value = node.nodeValue.trim();
-    const normalized = value.replace(/\s+/g, " ");
-    if (!value || !arabicTranslations[normalized] || node.parentElement?.closest("script, style, input, textarea")) return;
-    node.nodeValue = node.nodeValue.replace(value, arabicTranslations[normalized]);
+    if (node.parentElement?.closest("script, style, input, textarea")) return;
+    if (!originalText.has(node)) originalText.set(node, node.nodeValue);
+    const source = originalText.get(node);
+    const normalized = source.trim().replace(/\s+/g, " ");
+    if (!normalized) return;
+    const translated = isArabic ? arabicTranslations[normalized] : undefined;
+    const nextValue = isArabic && translated ? source.replace(normalized, translated) : source;
+    if (node.nodeValue !== nextValue) node.nodeValue = nextValue;
   });
 
   document.querySelectorAll("[aria-label], [title], input[placeholder], textarea[placeholder]").forEach((element) => {
     ["aria-label", "title", "placeholder"].forEach((attribute) => {
       const value = element.getAttribute(attribute);
-      const normalized = value?.replace(/\s+/g, " ");
-      if (normalized && arabicTranslations[normalized]) element.setAttribute(attribute, arabicTranslations[normalized]);
+      if (value == null) return;
+      if (!originalAttributes.has(element)) originalAttributes.set(element, {});
+      const attributes = originalAttributes.get(element);
+      if (!(attribute in attributes)) attributes[attribute] = value;
+      const source = attributes[attribute];
+      const normalized = source.replace(/\s+/g, " ");
+      const translated = isArabic ? arabicTranslations[normalized] : undefined;
+      element.setAttribute(attribute, isArabic && translated ? translated : source);
     });
   });
 }
