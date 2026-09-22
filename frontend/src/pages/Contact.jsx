@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Check, Loader2, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { toast } from "sonner";
-import { COMPANY, WA_GENERAL } from "../data/site";
+import { COMPANY, WA_GENERAL, WHATSAPP_NUMBER } from "../data/site";
 import TapeReveal from "../components/TapeReveal";
 import Reveal from "../components/Reveal";
 
@@ -73,7 +73,7 @@ export default function Contact() {
                   <span className="grid h-11 w-11 shrink-0 place-items-center rounded-sm bg-[#1FA855] text-white"><MessageCircle className="h-4 w-4" /></span>
                   <div>
                     <p className="field-label">WhatsApp</p>
-                    <a href={WA_GENERAL} target="_blank" rel="noreferrer" data-testid="contact-whatsapp-link" className="text-sm font-semibold hover:underline sm:text-base">Chat with us on WhatsApp ({COMPANY.phoneDisplay})</a>
+                    <a href={WA_GENERAL} target="_blank" rel="noreferrer" data-testid="contact-whatsapp-link" className="text-sm font-semibold hover:underline sm:text-base">Chat with us on WhatsApp ({WHATSAPP_NUMBER})</a>
                   </div>
                 </li>
                 <li className="flex gap-4">

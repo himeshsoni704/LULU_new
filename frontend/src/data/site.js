@@ -15,7 +15,8 @@ export const COMPANY = {
   logoLight: "/logo-light.png",
 };
 
-export const waLink = (msg) => `https://wa.me/97165300865?text=${encodeURIComponent(msg)}`;
+export const WHATSAPP_NUMBER = "+971 54 435 3935";
+export const waLink = (msg) => `https://wa.me/971544353935?text=${encodeURIComponent(msg)}`;
 export const WA_GENERAL = waLink("Hi, I'd like to know more about Al Lulu Packaging's products and services.");
 export const waProduct = (name) => waLink(`Hi, I'm interested in ${name}. I'd like to request a quotation.`);
 
