@@ -32,6 +32,18 @@ ${catalogLines}
 TONE: Short, warm, professional B2B. Guide users to ask about product type, size, and quantity so they can get a formal quote.`;
 };
 
+export async function summarizeGeminiChat(messages) {
+  const response = await fetch("/api/rocky/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "summarize", messages }),
+  });
+  if (!response.ok) throw new Error(`Gemini summary error: ${response.status}`);
+  const data = await response.json();
+  if (!data.summary) throw new Error("Gemini returned no summary");
+  return data.summary;
+}
+
 export async function streamGeminiChat({ messages, onDelta }) {
   const response = await fetch("/api/rocky/chat", {
     method: "POST",

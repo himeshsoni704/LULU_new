@@ -13,6 +13,7 @@ export default async function handler(req, res) {
 
   try {
     const messages = Array.isArray(req.body?.messages) ? req.body.messages : [];
+    const isSummaryRequest = req.body?.action === "summarize";
     const contents = messages
       .filter((message) =>
         (message.role === "user" || message.role === "assistant") &&
@@ -26,6 +27,29 @@ export default async function handler(req, res) {
 
     if (!contents.length || contents[contents.length - 1].role !== "user") {
       return res.status(400).json({ error: "A user message is required" });
+    }
+
+    if (isSummaryRequest) {
+      const summaryResponse = await fetch(
+        `${GEMINI_API_URL}:generateContent?key=${encodeURIComponent(apiKey)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents,
+            systemInstruction: { parts: [{ text: `${buildRockySystemPrompt()}\n\nCreate a concise WhatsApp handoff summary of the user's conversation. Write in first person as the customer, beginning with "Hi, I was chatting with Rocky." Mention only the customer's actual needs and questions. Keep it under 450 characters and end by asking the company to help.` }] },
+            generationConfig: { temperature: 0.2, maxOutputTokens: 120 },
+          }),
+        }
+      );
+      if (!summaryResponse.ok) {
+        console.error("[rocky] Gemini summary failed", summaryResponse.status, (await summaryResponse.text()).slice(0, 500));
+        return res.status(502).json({ error: "Unable to summarize the conversation" });
+      }
+      const summaryData = await summaryResponse.json();
+      const summary = summaryData.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (!summary) return res.status(502).json({ error: "Gemini returned an empty summary" });
+      return res.status(200).json({ summary });
     }
 
     const upstream = await fetch(
