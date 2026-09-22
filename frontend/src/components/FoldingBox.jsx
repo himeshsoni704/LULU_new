@@ -299,22 +299,117 @@ function buildScene(container, sceneRef, setWebglError) {
   const camera = new THREE.PerspectiveCamera(45, W / H, 10, 1000);
   camera.position.set(40, 90, 110);
 
+  // ── Procedural Kraft Paper Texture with corrugated & fibrous details ─────
+  function createCardboardTextures() {
+    // 1. Diffuse / Color Map
+    const colorCanvas = document.createElement("canvas");
+    colorCanvas.width = 512;
+    colorCanvas.height = 512;
+    const ctx = colorCanvas.getContext("2d");
+
+    // Base kraft brown
+    ctx.fillStyle = "#c29b68";
+    ctx.fillRect(0, 0, 512, 512);
+
+    // Subtle corrugated ribbing stripes
+    for (let x = 0; x < 512; x += 8) {
+      ctx.fillStyle = x % 16 === 0 ? "rgba(90, 60, 30, 0.08)" : "rgba(255, 240, 210, 0.06)";
+      ctx.fillRect(x, 0, 4, 512);
+    }
+
+    // Kraft paper speckles & grain
+    const imgData = ctx.getImageData(0, 0, 512, 512);
+    const data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const noise = (Math.random() - 0.5) * 26;
+      data[i]     = Math.min(255, Math.max(0, data[i] + noise));
+      data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + noise * 0.85));
+      data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + noise * 0.6));
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    // Random cardboard paper fibers
+    ctx.strokeStyle = "rgba(70, 45, 20, 0.18)";
+    ctx.lineWidth = 1;
+    for (let f = 0; f < 240; f++) {
+      const fx = Math.random() * 512;
+      const fy = Math.random() * 512;
+      const fl = 3 + Math.random() * 8;
+      const fa = Math.random() * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(fx, fy);
+      ctx.lineTo(fx + Math.cos(fa) * fl, fy + Math.sin(fa) * fl);
+      ctx.stroke();
+    }
+
+    const diffuseTexture = new THREE.CanvasTexture(colorCanvas);
+    diffuseTexture.wrapS = THREE.RepeatWrapping;
+    diffuseTexture.wrapT = THREE.RepeatWrapping;
+    diffuseTexture.repeat.set(4, 4);
+
+    // 2. Bump / Roughness Map for realistic tactile feel
+    const bumpCanvas = document.createElement("canvas");
+    bumpCanvas.width = 256;
+    bumpCanvas.height = 256;
+    const bCtx = bumpCanvas.getContext("2d");
+    bCtx.fillStyle = "#808080";
+    bCtx.fillRect(0, 0, 256, 256);
+    const bData = bCtx.getImageData(0, 0, 256, 256);
+    for (let i = 0; i < bData.data.length; i += 4) {
+      const n = (Math.random() - 0.5) * 45;
+      const val = Math.min(255, Math.max(0, 128 + n));
+      bData.data[i] = val;
+      bData.data[i + 1] = val;
+      bData.data[i + 2] = val;
+    }
+    bCtx.putImageData(bData, 0, 0);
+
+    const bumpTexture = new THREE.CanvasTexture(bumpCanvas);
+    bumpTexture.wrapS = THREE.RepeatWrapping;
+    bumpTexture.wrapT = THREE.RepeatWrapping;
+    bumpTexture.repeat.set(8, 8);
+
+    return { diffuseTexture, bumpTexture };
+  }
+
+  const { diffuseTexture, bumpTexture } = createCardboardTextures();
+
   // ── Lighting ─────────────────────────────────────────────────────────────
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  const ambientLight = new THREE.AmbientLight(0xfff3e6, 0.7);
   scene.add(ambientLight);
+
+  // Soft directional key light for deep shadows & surface definition
+  const keyLight = new THREE.DirectionalLight(0xfffaed, 1.2);
+  keyLight.position.set(80, 140, 100);
+  scene.add(keyLight);
+
+  // Warm rim light from back-left for edge separation
+  const rimLight = new THREE.DirectionalLight(0xe8c79b, 0.8);
+  rimLight.position.set(-100, 80, -60);
+  scene.add(rimLight);
+
+  // Bottom soft bounce light (simulating warehouse floor bounce)
+  const groundLight = new THREE.DirectionalLight(0x735c44, 0.4);
+  groundLight.position.set(0, -100, 40);
+  scene.add(groundLight);
 
   const lightHolder = new THREE.Group();
   const topLight = new THREE.PointLight(0xffffff, 0.5);
   topLight.position.set(-30, 300, 0);
   lightHolder.add(topLight);
-  const sideLight = new THREE.PointLight(0xffffff, 0.7);
+  const sideLight = new THREE.PointLight(0xffecd6, 0.6);
   sideLight.position.set(50, 0, 150);
   lightHolder.add(sideLight);
   scene.add(lightHolder);
 
-  // ── Material ─────────────────────────────────────────────────────────────
+  // ── Cardboard Material with tactile paper feel ───────────────────────────
   const material = new THREE.MeshStandardMaterial({
-    color: new THREE.Color(0xDFD3C5),
+    color: new THREE.Color(0xd6a874),
+    map: diffuseTexture,
+    bumpMap: bumpTexture,
+    bumpScale: 0.12,
+    roughness: 0.88,
+    metalness: 0.02,
     side: THREE.DoubleSide,
   });
   els.group.traverse((c) => { if (c.isMesh) c.material = material; });
@@ -449,87 +544,28 @@ function buildScene(container, sceneRef, setWebglError) {
     updatePanelsTransform();
   }
 
-  // ── Al Lulu Packaging stamp (canvas texture) ─────────────────────────────
-  // High-res canvas: 4× scale so text is sharp on the PlaneGeometry
-  const STAMP_W = 640;
-  const STAMP_H = 280;
-
-  function createStamp() {
-    const canvas = document.createElement("canvas");
-    canvas.width = STAMP_W;
-    canvas.height = STAMP_H;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return null;
-
-    // ── Cream background ────────────────────────────────────────────────────
-    ctx.fillStyle = "#f5ede0";
-    ctx.fillRect(0, 0, STAMP_W, STAMP_H);
-
-    // ── Outer border ────────────────────────────────────────────────────────
-    ctx.strokeStyle = "#2b1d0e";
-    ctx.lineWidth = 6;
-    ctx.strokeRect(6, 6, STAMP_W - 12, STAMP_H - 12);
-
-    // ── Header band (dark charcoal) ─────────────────────────────────────────
-    ctx.fillStyle = "#1e1309";
-    ctx.fillRect(6, 6, STAMP_W - 12, STAMP_H * 0.38);
-
-    // ── Amber accent stripe below header ────────────────────────────────────
-    ctx.fillStyle = "#c8860a";
-    ctx.fillRect(6, STAMP_H * 0.38, STAMP_W - 12, 6);
-
-    // ── Company name (white on dark header) ─────────────────────────────────
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 54px sans-serif";
-    ctx.textAlign = "left";
-    ctx.fillText("AL LULU PACKAGING", 24, STAMP_H * 0.29);
-
-    // ── Tagline in amber inside header ──────────────────────────────────────
-    ctx.fillStyle = "#c8a44a";
-    ctx.font = "bold 20px monospace";
-    ctx.fillText("SHARJAH, U.A.E.  •  EST. 2013", 24, STAMP_H * 0.11);
-
-    // ── Body section – dark text on cream ───────────────────────────────────
-    ctx.fillStyle = "#2b1d0e";
-    ctx.font = "bold 22px sans-serif";
-    ctx.fillText("↑  THIS SIDE UP", 24, STAMP_H * 0.62);
-
-    ctx.font = "20px monospace";
-    ctx.fillText("CORRUGATED CONTAINER  •  3-PLY RSC", 24, STAMP_H * 0.78);
-
-    // ── Barcode strip ───────────────────────────────────────────────────────
-    ctx.fillStyle = "#2b1d0e";
-    let bx = 24;
-    const bws = [3,2,7,2,5,3,9,2,4,6,2,8,3,2,7,4,2,5,8,3,6,2,4,9,3,5,2,7,4,6];
-    for (const bw of bws) {
-      ctx.fillRect(bx, STAMP_H * 0.84, bw, STAMP_H * 0.1);
-      bx += bw + 3;
-    }
-    ctx.font = "14px monospace";
-    ctx.fillText("ALLULU-CORR-36752", 24, STAMP_H * 0.99);
-
-    return canvas;
-  }
-
+  // ── Al Lulu Branding stamp using transparent brand image ─────────────────
   let stamp = null;
-  const stampCanvas = createStamp();
-  if (stampCanvas) {
-    const stampTexture = new THREE.CanvasTexture(stampCanvas);
-    stampTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    // Make stamp larger so it fills most of the front panel
-    const stampGeom = new THREE.PlaneGeometry(
-      params.length * 0.7,
-      params.depth * 0.62
-    );
-    const stampMat = new THREE.MeshBasicMaterial({
-      map: stampTexture,
-      transparent: true,
-      opacity: 0,
-      depthWrite: true,
-    });
-    stamp = new THREE.Mesh(stampGeom, stampMat);
-    scene.add(stamp);
-  }
+  const textureLoader = new THREE.TextureLoader();
+  const brandTexture = textureLoader.load("/image-removebg-preview.png", (tex) => {
+    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    tex.needsUpdate = true;
+  });
+
+  // Plane geometry proportional to the wide brand logo (aspect ratio ~ 2.1:1)
+  const stampGeom = new THREE.PlaneGeometry(
+    params.length * 0.72,
+    (params.length * 0.72) * (340 / 720)
+  );
+  const stampMat = new THREE.MeshBasicMaterial({
+    map: brandTexture,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  stamp = new THREE.Mesh(stampGeom, stampMat);
+  scene.add(stamp);
 
   // ── Transform logic (1-to-1 port from tutorial) ──────────────────────────
   function updatePanelsTransform() {
