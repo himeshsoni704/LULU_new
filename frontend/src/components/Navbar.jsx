@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, MessageCircle } from "lucide-react";
 import { WA_GENERAL } from "../data/site";
+import { useLanguage } from "../context/LanguageContext";
 
 const LINKS = [
   { to: "/", label: "Home" },
@@ -30,6 +31,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
+  const { language, isArabic, toggleLanguage, t } = useLanguage();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -64,17 +66,29 @@ export default function Navbar() {
                 }`
               }
             >
-              {l.label}
+              {t(l.label)}
             </NavLink>
           ))}
         </nav>
 
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            aria-label={isArabic ? "Switch to English" : "Switch to Arabic"}
+            title={isArabic ? "Switch to English" : "Switch to Arabic"}
+            data-testid="language-toggle"
+            className={`h-9 rounded-full border px-3 font-mono text-[10px] uppercase tracking-[0.16em] transition-colors ${
+              overDark ? "border-bone/30 text-bone hover:bg-bone hover:text-charcoal" : "border-charcoal/20 text-charcoal hover:bg-charcoal hover:text-bone"
+            }`}
+          >
+            {language === "en" ? "عربي" : "EN"}
+          </button>
           <a
             href={WA_GENERAL}
             target="_blank"
             rel="noreferrer"
-            aria-label="Chat with us on WhatsApp"
+            aria-label={t("Chat with us on WhatsApp")}
             data-testid="nav-whatsapp-link"
             className={`grid h-10 w-10 place-items-center rounded-full border transition-colors ${
               overDark ? "border-bone/30 text-bone hover:bg-bone hover:text-charcoal" : "border-charcoal/20 text-charcoal hover:bg-charcoal hover:text-bone"
@@ -87,7 +101,7 @@ export default function Navbar() {
             data-testid="nav-request-quote-button"
             className="hidden sm:inline-flex items-center gap-2 bg-kraft px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.18em] text-bone transition-colors hover:bg-kraft-dark"
           >
-            Request a Quote
+            {t("Request a Quote")}
           </Link>
           <button
             className={`lg:hidden grid h-10 w-10 place-items-center ${textTone}`}
@@ -119,12 +133,12 @@ export default function Navbar() {
                   `block border-b border-bone/10 py-4 font-display text-xl font-bold uppercase ${isActive ? "text-tape" : ""}`
                 }
               >
-                {l.label}
+                {t(l.label)}
               </NavLink>
             ))}
             <div className="mt-6 flex gap-3">
               <Link to="/request-quote" data-testid="nav-mobile-quote-button" className="flex-1 bg-kraft px-4 py-3.5 text-center font-mono text-[11px] uppercase tracking-[0.18em] text-bone">
-                Request a Quote
+                {t("Request a Quote")}
               </Link>
               <a href={WA_GENERAL} target="_blank" rel="noreferrer" data-testid="nav-mobile-whatsapp" className="grid h-12 w-12 place-items-center bg-[#1FA855] text-white" aria-label="WhatsApp">
                 <MessageCircle className="h-5 w-5" />
