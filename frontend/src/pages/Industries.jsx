@@ -57,9 +57,7 @@ export default function Industries() {
               </div>
             </Reveal>
           ))}
-          <p className="border-t border-line pt-6 font-mono text-[10px] uppercase tracking-[0.16em] text-slate-400">
-            Client names shown as supplied by Al Lulu Packaging. No partnership, certification or endorsement is implied.
-          </p>
+
         </div>
       </section>
 

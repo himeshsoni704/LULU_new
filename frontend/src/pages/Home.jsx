@@ -112,11 +112,7 @@ export default function Home() {
           </div>
         </div>
         <ClientLogoMarquee />
-        <div className="mx-auto max-w-[1400px] px-5 py-4 sm:px-8 lg:px-12">
-          <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-slate-400">
-            Client names shown as supplied by Al Lulu Packaging. No partnership, certification or endorsement is implied.
-          </p>
-        </div>
+
       </section>
 
       {/* ---------- WHAT WE DO ---------- */}
